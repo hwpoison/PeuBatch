@@ -11,13 +11,16 @@ class LeQueue:
     """ A couple of tasks """
     def __init__(self):
         self.all_tasks = {}
-    
+        self.started = [] 
+
     def register_task(self, task : Task):
-        self.all_tasks[task] = task 
+        self.all_tasks[len(self.all_tasks.keys()) + 1] = task 
 
     def start(self):
-        for id, task in self.all_tasks:
-            print(id, task)
+        for id, task in self.all_tasks.items():
+            print(f"Starting { task.name } task...")
+            self.started.append(task)
+            task.run()
 
 
 # demo session
@@ -31,20 +34,17 @@ sesion_0.jobs_seq = {
 }
 
 ############################
-# demo task , that uses the demo session
-task_demo = Task('DEMO_TASK', ['every','day', '10:30'])
+task_demo = Task('DEMO_TASK', schedule.every(5).seconds)
 task_demo.session = sesion_0
-task_demo.session.start()
 
 main = LeQueue()
 main.register_task(task_demo)
-
-#####
-schedule.every(2).seconds.do(task_demo.session.start)
+main.register_task(task_demo)
+main.start()
 
 while True:
     schedule.run_pending()
-    time.sleep(1)
+    time.sleep(0.3)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,6 @@
 from sequential.session import Session
+import schedule
+import threading
 
 class Task:
     """ 
@@ -6,15 +8,22 @@ class Task:
 
         Attributes
         ---------------
+        task_name : str
+            Task name
         session : Session
             Principal Session to schedule
-        date : None
+        schd : schedule
+            Schedule lib args
+                i.e : https://schedule.readthedocs.io/en/stable/examples.html
     """
-    def __init__(self, session : Session, schedule : list):
-        self.session = None 
-        self.date = None
+    def __init__(self, task_name : str, schd : schedule):
+        self.name = task_name
+        self.session : Session = None 
+        self.schd = schd
 
+    def session_thread(self):
+        session_thread = threading.Thread(target=self.session.start, name=self.session.name)
+        session_thread.start()
     
     def run(self):
-        self.session.run()
-        #schedule.every(1).seconds.do(self.session.run)
+        self.schd.do(self.session_thread)
