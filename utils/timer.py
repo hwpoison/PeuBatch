@@ -27,5 +27,8 @@ class Timer:
             print(msg)
 
     # simulate delay
-    def random_sleep(self, max=0.2):
+    def random_delay(self, max=0.2):
         time.sleep(random.uniform(0.2, max)) 
+
+    def get_timestamp(self):
+        return time.time()

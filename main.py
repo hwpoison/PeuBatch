@@ -18,7 +18,7 @@ class LeQueue:
 
     def start(self):
         for id, task in self.all_tasks.items():
-            print(f"Starting { task.name } task...")
+            print(f"[**] Task { task.name } loaded...")
             self.started.append(task)
             task.run()
 
@@ -27,25 +27,26 @@ class LeQueue:
 sesion_0 = Session('Session_demo')
 sesion_0.init_job = 'U1'
 sesion_0.jobs_seq = {
-    'U1':[Job('U1', '001.sh'), {0:'U3',1:'U2'}],
-        'U2':[Job('U2', '002.sh')],
-            'U3':[Job('U3', '003.sh'), {0:'U4'}],
-                'U4':[Job('U4', '004.sh')],
+    'U1':[Job('U1', './scripts/test/job_1_OK.sh'), {0:'U3',1:'U2'}],
+        'U2':[Job('U2', '/scripts/test/job_3_custom_return.sh')],
+    'U3':[Job('U3', '003.sh'), {0:'U4'}],
+        'U4':[Job('U4', '004.sh')],
 }
 
 ############################
-task_demo = Task('DEMO_TASK', schedule.every(5).seconds)
+task_demo = Task('DEMO_TASK', schedule.every(1).seconds)
 task_demo.session = sesion_0
 
-main = LeQueue()
-main.register_task(task_demo)
-main.register_task(task_demo)
-main.start()
+task_demo.session.run()
 
-while True:
-    schedule.run_pending()
-    time.sleep(0.3)
-
-
+"""
 if __name__ == '__main__':
-    pass 
+    main = LeQueue()
+    main.register_task(task_demo)
+    main.start()
+
+    while True:
+        schedule.run_pending()
+        time.sleep(0.3)
+        #break
+"""

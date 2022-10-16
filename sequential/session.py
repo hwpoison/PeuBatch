@@ -1,4 +1,7 @@
 import utils.timer as timer
+from utils.logger import logger
+from utils import errors
+
 
 class Session:
     """
@@ -32,8 +35,8 @@ class Session:
         job = job_[0]
         ribb = job_[1] if len(job_)>1 else None
 
-        return_code = job.execute()
-        
+        return_code, output, stderr  = job.execute()
+      
         if ribb is None:
             return True
 
@@ -41,10 +44,18 @@ class Session:
             print(f"Next job is { next_job }")
             self.run_job(next_job)
         
-    def start(self):
+    def run(self):
         timer_clock = timer.Timer()
         timer_clock.start()
-        print(f"[+] Running { self.name }...") 
-        self.run_job(self.init_job)
-        print(f"[*] Session '{ self.name }' finished in { timer_clock.end() }")
+        logger.info(f" ||    Running session '{self.name}   ||") 
+        try:
+            self.run_job(self.init_job)
+        except: # abort session
+            logger.error(f"Aborting Session '{ self.name }' finished in { timer_clock.end() }")
+            logger.info(f" ||    End of session '{self.name}   ||") 
+            return False
+        logger.info(f"Session '{ self.name }' finished in { timer_clock.end() }")
+        logger.info(f" ||    End of session '{self.name}   ||") 
+
+        return True
     
