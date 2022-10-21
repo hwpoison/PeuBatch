@@ -1,46 +1,36 @@
 #!/usr/bin/python3
-import schedule 
-import time
+import schedule, time
 
-from sequential.job import Job
-from scheduled.task import Task
-from sequential.session import Session
-
-
-class LeQueue:
-    """ A couple of tasks """
-    def __init__(self):
-        self.all_tasks = {}
-        self.started = [] 
-
-    def register_task(self, task : Task):
-        self.all_tasks[len(self.all_tasks.keys()) + 1] = task 
-
-    def start(self):
-        for id, task in self.all_tasks.items():
-            print(f"[**] Task { task.name } loaded...")
-            self.started.append(task)
-            task.run()
+from objects.sequential.job import Job
+from objects.scheduled.task import Task
+from objects.sequential.session import Session
+from objects.scheduled.queue import LeQueue
 
 
-# demo session
-sesion_0 = Session('Session_demo')
-sesion_0.init_job = 'U1'
-sesion_0.jobs_seq = {
-    'U1':[Job('U1', './scripts/test/job_1_OK.sh'), {0:'U3',1:'U2'}],
-        'U2':[Job('U2', '/scripts/test/job_3_custom_return.sh')],
-    'U3':[Job('U3', '003.sh'), {0:'U4'}],
-        'U4':[Job('U4', '004.sh')],
+# Batch follows next hierarchy: LeQueue(Task(Session(Job)))
+# Job: Minimal Unity (a simple script execution)
+# ---> Session: A couple of conditionated Jobs
+# -----> Task: A plannified Session
+# --------> LeQueue: A couple of Sessions
+
+
+# Session
+sesion_0 = Session("Session_demo")
+sesion_0.init_job = "U1"
+sesion_0.jobs = {
+    # Session design
+    "U1": [Job("./scripts/test/job_1_OK.sh"), {0: "U3", 1: "U2"}],
+    "U2": [Job("./scripts/test/job_3_custom_return.sh")],
+    "U3": [Job("./scripts/test/job_error.sh"), {0: "U4"}],
+    "U4": [Job("004.sh")],
 }
 
-############################
-task_demo = Task('DEMO_TASK', schedule.every(1).seconds)
+# Task
+task_demo = Task("DEMO_TASK", schedule.every(1).seconds)
 task_demo.session = sesion_0
 
-task_demo.session.run()
-
-"""
-if __name__ == '__main__':
+# Main Loop
+if __name__ == "__main__":
     main = LeQueue()
     main.register_task(task_demo)
     main.start()
@@ -48,5 +38,3 @@ if __name__ == '__main__':
     while True:
         schedule.run_pending()
         time.sleep(0.3)
-        #break
-"""
